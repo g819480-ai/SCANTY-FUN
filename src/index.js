@@ -21,9 +21,13 @@ async function youtubeSearch(url, env) {
   }
 
   const q = (url.searchParams.get("q") || "").trim();
-  if (!q) return json({ error: "Enter a search term." }, 400);
+
+  if (!q) {
+    return json({ error: "Enter a search term." }, 400);
+  }
 
   const api = new URL("https://www.googleapis.com/youtube/v3/search");
+
   api.search = new URLSearchParams({
     part: "snippet",
     type: "video",
@@ -41,15 +45,18 @@ async function youtubeSearch(url, env) {
     }, response.status);
   }
 
-  return json((data.items || []).map(v => ({
-    id: v.id.videoId,
-    title: v.snippet.title,
-    description: v.snippet.description,
-    thumbnail:
-      v.snippet.thumbnails?.high?.url ||
-      v.snippet.thumbnails?.medium?.url || "",
-    channel: v.snippet.channelTitle
-  })));
+  return json(
+    (data.items || []).map(v => ({
+      id: v.id.videoId,
+      title: v.snippet.title,
+      description: v.snippet.description,
+      thumbnail:
+        v.snippet.thumbnails?.high?.url ||
+        v.snippet.thumbnails?.medium?.url ||
+        "",
+      channel: v.snippet.channelTitle
+    }))
+  );
 }
 
 async function youtubePlaylist(url, env) {
@@ -58,9 +65,15 @@ async function youtubePlaylist(url, env) {
   }
 
   const id = (url.searchParams.get("id") || "").trim();
-  if (!id) return json({ error: "Playlist ID is required." }, 400);
 
-  const api = new URL("https://www.googleapis.com/youtube/v3/playlistItems");
+  if (!id) {
+    return json({ error: "Playlist ID is required." }, 400);
+  }
+
+  const api = new URL(
+    "https://www.googleapis.com/youtube/v3/playlistItems"
+  );
+
   api.search = new URLSearchParams({
     part: "snippet,contentDetails",
     playlistId: id,
@@ -77,14 +90,19 @@ async function youtubePlaylist(url, env) {
     }, response.status);
   }
 
-  return json((data.items || []).map(v => ({
-    id: v.contentDetails?.videoId,
-    title: v.snippet?.title,
-    description: v.snippet?.description,
-    thumbnail:
-      v.snippet?.thumbnails?.high?.url ||
-      v.snippet?.thumbnails?.medium?.url || ""
-  })).filter(v => v.id));
+  return json(
+    (data.items || [])
+      .map(v => ({
+        id: v.contentDetails?.videoId,
+        title: v.snippet?.title,
+        description: v.snippet?.description,
+        thumbnail:
+          v.snippet?.thumbnails?.high?.url ||
+          v.snippet?.thumbnails?.medium?.url ||
+          ""
+      }))
+      .filter(v => v.id)
+  );
 }
 
 async function handleApi(request, env) {
@@ -92,107 +110,199 @@ async function handleApi(request, env) {
   const path = url.pathname;
   const method = request.method;
 
+  // Worker health check
+  if (path === "/api/health" && method === "GET") {
+    return json({
+      ok: true,
+      service: "SCANTY FUN Worker",
+      database: Boolean(env.DB)
+    });
+  }
+
+  // All other API routes require the D1 binding
   if (!env.DB) {
-    return json({ error: "D1 database is not connected." }, 503);
+    return json({
+      error: "D1 database is not connected."
+    }, 503);
   }
 
-  if (path === "/api/health") {
-    return json({ ok: true, service: "SCANTY FUN Worker" });
-  }
-
+  // Get catalog
   if (path === "/api/catalog" && method === "GET") {
     const result = await env.DB.prepare(
       "SELECT * FROM catalog_items ORDER BY created_at DESC"
     ).all();
 
     const items = (result.results || []).map(item => ({
-  id: item.id,
-  type: item.type,
-  title: item.title,
-  description: item.description,
-  poster: item.poster,
-  sourceType: item.source_type,
-  source: item.source,
-  category: item.category,
-  featured: Boolean(item.featured),
-  createdAt: item.created_at
-}));
+      id: item.id,
+      type: item.type,
+      title: item.title,
+      description: item.description,
+      poster: item.poster,
+      sourceType: item.source_type,
+      source: item.source,
+      category: item.category,
+      featured: Boolean(item.featured),
+      createdAt: item.created_at
+    }));
 
-return json({ items });
+    return json({ items });
+  }
 
+  // Publish catalog item
   if (path === "/api/admin/items" && method === "POST") {
     if (!validAdmin(request, env)) {
-      return json({ error: "Invalid admin password." }, 401);
+      return json({
+        error: "Invalid admin password."
+      }, 401);
     }
 
     let body;
+
     try {
       body = await request.json();
     } catch {
-      return json({ error: "Invalid JSON body." }, 400);
+      return json({
+        error: "Invalid JSON body."
+      }, 400);
     }
 
     const {
-      type, title, description = "", poster = "",
-      sourceType, source = "", category = "General",
+      type,
+      title,
+      description = "",
+      poster = "",
+      sourceType,
+      source = "",
+      category = "General",
       featured = false
     } = body || {};
 
-    const allowedTypes = ["movie", "blender", "music", "comedy"];
+    const allowedTypes = [
+      "movie",
+      "blender",
+      "music",
+      "comedy"
+    ];
+
+    const allowedSources = [
+      "youtube",
+      "mp4",
+      "hls"
+    ];
 
     if (
       !allowedTypes.includes(type) ||
       !String(title || "").trim() ||
-      !["youtube", "mp4", "hls"].includes(sourceType)
+      !allowedSources.includes(sourceType) ||
+      !String(source || "").trim()
     ) {
-      return json({ error: "Provide a valid type, title and source type." }, 400);
+      return json({
+        error: "Provide a valid type, title, source type and source."
+      }, 400);
     }
 
-    if (sourceType !== "youtube" && !/^https:\/\//i.test(source)) {
-      return json({ error: "Video sources must use HTTPS." }, 400);
+    if (
+      sourceType !== "youtube" &&
+      !/^https:\/\//i.test(source)
+    ) {
+      return json({
+        error: "Video sources must use HTTPS."
+      }, 400);
     }
 
     const id = crypto.randomUUID();
+    const cleanTitle = String(title).trim();
+    const cleanDescription = String(description || "");
+    const cleanPoster = String(poster || "");
+    const cleanSource = String(source).trim();
+    const cleanCategory = String(category || "General").trim();
 
     await env.DB.prepare(`
       INSERT INTO catalog_items
-      (id, type, title, description, poster, source_type, source, category, featured)
+      (
+        id,
+        type,
+        title,
+        description,
+        poster,
+        source_type,
+        source,
+        category,
+        featured
+      )
       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
     `).bind(
-      id, type, String(title).trim(), description, poster,
-      sourceType, source, category, featured ? 1 : 0
+      id,
+      type,
+      cleanTitle,
+      cleanDescription,
+      cleanPoster,
+      sourceType,
+      cleanSource,
+      cleanCategory || "General",
+      featured ? 1 : 0
     ).run();
 
-    return json({ id, type, title, description, poster, sourceType, source, category, featured }, 201);
+    return json({
+      id,
+      type,
+      title: cleanTitle,
+      description: cleanDescription,
+      poster: cleanPoster,
+      sourceType,
+      source: cleanSource,
+      category: cleanCategory || "General",
+      featured: Boolean(featured)
+    }, 201);
   }
 
-  if (path.startsWith("/api/admin/items/") && method === "DELETE") {
+  // Delete catalog item
+  if (
+    path.startsWith("/api/admin/items/") &&
+    method === "DELETE"
+  ) {
     if (!validAdmin(request, env)) {
-      return json({ error: "Invalid admin password." }, 401);
+      return json({
+        error: "Invalid admin password."
+      }, 401);
     }
 
-    const id = decodeURIComponent(path.split("/").pop());
+    const id = decodeURIComponent(
+      path.split("/").pop()
+    );
 
     const result = await env.DB.prepare(
       "DELETE FROM catalog_items WHERE id = ?"
     ).bind(id).run();
 
-    if (!result.meta.changes) {
-      return json({ error: "Item not found." }, 404);
+    if (!result.meta?.changes) {
+      return json({
+        error: "Item not found."
+      }, 404);
     }
 
     return json({ ok: true });
   }
 
-  if (path === "/api/youtube/search" && method === "GET") {
+  // YouTube search
+  if (
+    path === "/api/youtube/search" &&
+    method === "GET"
+  ) {
     return youtubeSearch(url, env);
   }
 
-  if (path === "/api/youtube/playlist" && method === "GET") {
+  // YouTube playlist
+  if (
+    path === "/api/youtube/playlist" &&
+    method === "GET"
+  ) {
     return youtubePlaylist(url, env);
   }
 
-  return json({ error: "API route not found." }, 404);
+  return json({
+    error: "API route not found."
+  }, 404);
 }
 
 export default {
@@ -203,8 +313,14 @@ export default {
       try {
         return await handleApi(request, env);
       } catch (error) {
-        console.error("SCANTY FUN API error:", error);
-        return json({ error: "Server error. Check Worker logs." }, 500);
+        console.error(
+          "SCANTY FUN API error:",
+          error
+        );
+
+        return json({
+          error: "Server error. Check Worker logs."
+        }, 500);
       }
     }
 
