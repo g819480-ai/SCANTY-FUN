@@ -1,0 +1,18 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>SCANTY FUN Admin</title><link rel="stylesheet" href="/styles.css"></head>
+<body><header class="topbar"><a class="brand" href="/"> <span class="brand-mark">S</span> SCANTY <b>FUN</b></a><a class="nav-link" href="/">← Back to site</a></header>
+<main class="content-section"><p class="eyebrow">CONTENT CONTROL</p><h2>Admin dashboard</h2><p style="color:#aaa;font-size:12px">Only share your admin password with trusted site administrators.</p>
+<form id="adminForm" class="mini-card" style="display:grid;gap:12px;margin-top:25px">
+<label>Admin password<input id="password" type="password" required placeholder="Server ADMIN_PASSWORD" class="admin-input"></label>
+<label>Content type<select id="type" class="admin-input"><option value="movie">Movie</option><option value="blender">Blender</option><option value="music">Music</option><option value="comedy">Comedy</option></select></label>
+<label>Title<input id="title" class="admin-input" required></label>
+<label>Category<input id="category" class="admin-input" placeholder="Hollywood, Nollywood, Ghanaian, Trending..."></label>
+<label>Description<textarea id="description" class="admin-input" rows="3"></textarea></label>
+<label>Poster image URL<input id="poster" class="admin-input" type="url" placeholder="https://..."></label>
+<label>Playback source<select id="sourceType" class="admin-input"><option value="youtube">YouTube video URL or ID</option><option value="mp4">Licensed MP4 URL</option><option value="hls">Licensed HLS (.m3u8) URL</option></select></label>
+<label>Video URL / ID<input id="source" class="admin-input" placeholder="YouTube URL, video ID or HTTPS video URL" required></label>
+<button class="btn btn-primary" type="submit">Publish content</button><p id="adminMessage"></p>
+</form>
+<section style="margin-top:40px"><h2>Published content</h2><div id="adminItems" class="admin-list"></div></section>
+<section style="margin-top:40px"><h2>YouTube tools</h2><div class="mini-card"><p>Search public YouTube videos or load a playlist. The YouTube API key stays on the server.</p><input id="ytSearch" class="admin-input" placeholder="Search YouTube"><button class="btn btn-primary" id="ytSearchBtn">Search</button><input id="playlistId" class="admin-input" style="margin-top:10px" placeholder="YouTube playlist ID"><button class="btn btn-ghost" id="playlistBtn">Load playlist</button><div id="ytResults"></div></div></section>
+</main><script src="/admin.js"></script></body></html>
