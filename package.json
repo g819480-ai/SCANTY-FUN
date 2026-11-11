@@ -1,0 +1,16 @@
+{
+  "name": "scanty-fun",
+  "version": "1.0.0",
+  "private": true,
+  "description": "SCANTY FUN entertainment hub",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node --watch server.js"
+  },
+  "engines": { "node": ">=20" },
+  "dependencies": {
+    "express": "^4.21.2",
+    "helmet": "^8.0.0"
+  }
+}

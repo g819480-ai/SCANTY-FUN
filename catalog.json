@@ -1,0 +1,15 @@
+{
+  "items": [
+    {
+      "id": "welcome-movie",
+      "type": "movie",
+      "category": "Featured",
+      "title": "Your entertainment starts here",
+      "description": "Add licensed movie links from the admin panel to publish your first title.",
+      "poster": "",
+      "sourceType": "youtube",
+      "source": "",
+      "featured": true
+    }
+  ]
+}
