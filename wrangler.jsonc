@@ -12,7 +12,7 @@
     {
       "binding": "DB",
       "database_name": "scanty_fun_db",
-      "database_id": "REPLACE_WITH_YOUR_D1_DATABASE_ID",
+      "database_id": "4894e3f0-1013-4120-b841-ce7fb8b11c90",
       "migrations_dir": "migrations"
     }
   ]
