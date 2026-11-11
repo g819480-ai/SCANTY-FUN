@@ -105,8 +105,20 @@ async function handleApi(request, env) {
       "SELECT * FROM catalog_items ORDER BY created_at DESC"
     ).all();
 
-    return json({ items: result.results || [] });
-  }
+    const items = (result.results || []).map(item => ({
+  id: item.id,
+  type: item.type,
+  title: item.title,
+  description: item.description,
+  poster: item.poster,
+  sourceType: item.source_type,
+  source: item.source,
+  category: item.category,
+  featured: Boolean(item.featured),
+  createdAt: item.created_at
+}));
+
+return json({ items });
 
   if (path === "/api/admin/items" && method === "POST") {
     if (!validAdmin(request, env)) {
