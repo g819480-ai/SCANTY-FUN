@@ -19,10 +19,4 @@
 }
 
 {
-  // ...
-  "vars": {
-    "ADMIN_PASSWORD": "SCANTY-MD@123",
-    "YOUTUBE_API_KEY": "AIzaSyAJav46JSi9HXZTPwqgTg593y30A5NiRNs"
-  },
-  // ...
-}
+  
