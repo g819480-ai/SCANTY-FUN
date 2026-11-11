@@ -1,0 +1,81 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="theme-color" content="#09090d">
+  <meta name="description" content="SCANTY FUN — movies, music, comedy, games and quizzes.">
+  <title>SCANTY FUN | Entertainment without limits</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/styles.css">
+  <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
+</head>
+<body>
+  <header class="topbar">
+    <a class="brand" href="#"><span class="brand-mark">S</span> SCANTY <b>FUN</b></a>
+    <nav id="mainNav">
+      <button class="nav-link active" data-view="home">Home</button>
+      <button class="nav-link" data-view="movie">Movies</button>
+      <button class="nav-link" data-view="blender">Blender</button>
+      <button class="nav-link" data-view="music">Music</button>
+      <button class="nav-link" data-view="comedy">Comedy</button>
+      <button class="nav-link" data-view="games">Games</button>
+      <button class="nav-link" data-view="quizzes">Quizzes</button>
+    </nav>
+    <button class="menu-toggle" id="menuToggle" aria-label="Open menu">☰</button>
+  </header>
+
+  <main>
+    <section class="hero" id="hero">
+      <div class="hero-content">
+        <p class="eyebrow"><span class="live-dot"></span> YOUR ENTERTAINMENT UNIVERSE</p>
+        <h1>GOOD VIBES.<br><span>BIG SCREEN ENERGY.</span></h1>
+        <p class="hero-copy">Discover movies, music, comedy and more — all in one place.</p>
+        <div class="hero-actions">
+          <button class="btn btn-primary" data-jump="movie">Explore movies <span>→</span></button>
+          <button class="btn btn-ghost" data-jump="music">Explore music</button>
+        </div>
+      </div>
+      <div class="hero-orb orb-one"></div><div class="hero-orb orb-two"></div>
+      <div class="hero-stamp">SCANTY<br><b>FUN</b></div>
+    </section>
+
+    <section class="search-wrap">
+      <div class="search-box"><span>⌕</span><input id="siteSearch" type="search" placeholder="Search movies, music, comedy..."><button id="searchBtn">Search</button></div>
+      <div class="chips" id="categoryChips">
+        <button class="chip selected" data-category="All">All</button>
+        <button class="chip" data-category="Hollywood">Hollywood</button>
+        <button class="chip" data-category="Nollywood">Nollywood</button>
+        <button class="chip" data-category="Ghanaian">Ghanaian</button>
+        <button class="chip" data-category="African">African</button>
+        <button class="chip" data-category="Trending">Trending</button>
+      </div>
+    </section>
+
+    <section class="content-section" id="catalogSection">
+      <div class="section-heading"><div><p class="eyebrow">PICK YOUR NEXT FAVOURITE</p><h2 id="sectionTitle">Featured for you</h2></div><span class="section-count" id="resultCount"></span></div>
+      <div class="card-grid" id="catalogGrid"></div>
+      <p class="empty-state" id="emptyState" hidden>No titles here yet. Check back soon.</p>
+    </section>
+
+    <section class="content-section feature-strip">
+      <div><p class="eyebrow">MORE THAN JUST WATCHING</p><h2>Play. Laugh. Discover.</h2><p>Jump into quick games and quizzes whenever you need a break.</p></div>
+      <button class="btn btn-primary" data-jump="games">Explore games →</button>
+    </section>
+
+    <section class="content-section mini-area" id="playArea" hidden>
+      <div class="section-heading"><div><p class="eyebrow">TAKE A BREAK</p><h2 id="miniTitle">Quick fun</h2></div></div>
+      <div id="miniContent" class="mini-card"></div>
+    </section>
+  </main>
+
+  <footer><a class="brand" href="#"><span class="brand-mark">S</span> SCANTY <b>FUN</b></a><p>Entertainment hub · Watch and share responsibly.</p><span>© <span id="year"></span> SCANTY FUN</span></footer>
+
+  <div class="player-modal" id="playerModal" aria-hidden="true">
+    <div class="player-shell"><button class="close-player" id="closePlayer" aria-label="Close player">×</button><div id="playerMount"></div><div class="player-caption" id="playerCaption"></div></div>
+  </div>
+  <script src="/app.js"></script>
+</body>
+</html>
